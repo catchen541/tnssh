@@ -22,8 +22,7 @@ class QuoteSlashCog(commands.Cog):
                 # ✨ 關鍵在這！直接發送檔案，不用嵌入框 ✨
                 await interaction.response.send_message(file=file)
                 return
-
-        # 如果找不到圖片，還是會送出錯誤訊息喔！
+            #會送出錯誤訊息喔！
         await interaction.response.send_message(f"❌ 找不到圖片語錄「{quote_name}」", ephemeral=True)
 
     # 自動補全語錄名稱
