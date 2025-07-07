@@ -4,6 +4,9 @@ from discord.ext import commands
 from dotenv import load_dotenv
 import os
 import asyncio
+from http.server import SimpleHTTPRequestHandler
+import socketserver
+import threading
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
@@ -91,5 +94,28 @@ async def main():
     await bot.load_extension("cogs.andy")  # 如 andy cog 存在則一起載入
     await bot.load_extension("Bing.Bing1")  # 如 gemini_chat cog 存在則一起載入
     await bot.start(DISCORD_TOKEN)
+
+# --- 新增的 Web Server 相關程式碼 ---
+# 監聽的埠號，Render 會透過環境變數 $PORT 來提供
+# 如果 Render 沒有提供 (例如在本機測試)，預設用 8080
+PORT = int(os.environ.get("PORT", 8080)) 
+
+# 這是我們簡易的 HTTP 請求處理器
+class HealthCheckHandler(SimpleHTTPRequestHandler):
+    def do_GET(self):
+        # 收到 GET 請求時，回應 HTTP 200 OK，表示服務正常
+        self.send_response(200)
+        self.send_header("Content-type", "text/plain") # 設定回應類型為純文字
+        self.end_headers()
+        self.wfile.write(b"Discord Bot is alive and well! :)") # 回應一個簡單的訊息
+
+# 這個函式會在獨立的執行緒中運行 Web Server
+def run_web_server():
+    # 創建一個 TCP 伺服器，監聽所有網路介面 (空字串 "") 和指定的埠號
+    with socketserver.TCPServer(("", PORT), HealthCheckHandler) as httpd:
+        print(f"🌐 Web Server 正在監聽埠 {PORT}，用於 Render 健康檢查。")
+        httpd.serve_forever() # 讓伺服器永遠運行，處理請求
+# --- 新增的 Web Server 相關程式碼結束 ---
+
 
 asyncio.run(main())
