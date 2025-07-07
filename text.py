@@ -50,7 +50,7 @@ def fetch_announcement():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--user-data-dir=/tmp/chrome_profile_$(uuidgen)")
     chrome_options.add_argument("--disable-gpu")
-# 對於某些系統，可能需要添加這個選項
+# 對於某些系統，可能需要添加這個選
 
     # 設定 ChromeDriver 路徑
     if platform.system() == "Windows":
@@ -79,7 +79,7 @@ def fetch_announcement():
     articles = driver.find_elements(By.XPATH, "//article")
 
     # 要查找的關鍵字，進行不區分大小寫匹配
-    keywords = ["高一", "全校", "重要公告", "113學年","114學年","衛生組"]
+    keywords = ["高一", "全校", "重要公告", "113學年","114學年","衛生組","K館"]
     results = []
 
     # 設定數據庫
