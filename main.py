@@ -1,20 +1,20 @@
 import json
 import discord
 from discord.ext import commands
+import Bing.Bing1
+import cogs.greeting
 from dotenv import load_dotenv
 import os
 import asyncio
 from http.server import SimpleHTTPRequestHandler
 import socketserver
 import threading
+import cogs, Bing
 
 load_dotenv()
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 
-intents = discord.Intents.default()
-intents.message_content = True
-intents.messages = True
-intents.guilds = True 
+intents = discord.Intents.all()
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -50,13 +50,13 @@ async def on_ready():
         print(f"❌ 同步指令失敗：{e}")
 
 @bot.event
-async def on_message(message):
+async def on_message(message: discord.Message):
     if message.author.bot:
         return
 
     # 取得 cogs
-    bing_cog = bot.get_cog("Bing")
-    greeting_cog = bot.get_cog("Main")
+    bing_cog = Bing.Bing1.Bing(bot)
+    greeting_cog = cogs.greeting.Main(bot)
 
     # 優先處理 AI 提及或回覆
     # 檢查訊息是否提及機器人或是一個回覆
@@ -85,14 +85,23 @@ async def on_message(message):
     await bot.process_commands(message)
 
 
+cogs_list = []
+
+async def load_extensions():
+    for filename in os.listdir("./cogs"):
+        if filename.endswith(".py"):
+            extension = filename[:-3]
+            await bot.load_extension(f"cogs.{extension}")
+            cogs_list.append(extension)
+    try:
+        await bot.load_extension("Bing.Bing1")
+        cogs_list.append("Bing1.py")
+    except:
+        pass
+        
+
 async def main():
-    await bot.load_extension("cogs.announcements")
-    await bot.load_extension("cogs.greeting")  # 如 greeting cog 存在則一起載入
-    await bot.load_extension("cogs.answer_book")  # 如 answer_book cog 存在則一起載入
-    await bot.load_extension("cogs.sum")  # 如 sum cog 存在則一起載入
-    await bot.load_extension("cogs.recipes")  # 如 recipes cog 存在則一起載入
-    await bot.load_extension("cogs.andy")  # 如 andy cog 存在則一起載入
-    await bot.load_extension("Bing.Bing1")  # 如 gemini_chat cog 存在則一起載入
+    await load_extensions()
     await bot.start(DISCORD_TOKEN)
 
 # --- Web Server for Render 健康檢查 ---
