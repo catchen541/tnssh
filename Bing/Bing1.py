@@ -13,7 +13,7 @@ PROMPT_FILE = "Bing/prompt.txt"
 HISTORY_FILE = "Bing/history.json"
 
 class Bing(commands.Cog):
-    def __init__(self, bot):
+    def __init__(self, bot:commands.Bot):
         self.bot = bot
         self.prompt = self.load_prompt() 
 
@@ -116,7 +116,7 @@ class Bing(commands.Cog):
                     await message.reply("抱歉，我在思考的時候好像撞到頭了，請再試一次。")
 
     @commands.command(name="forget")
-    async def forget(self, ctx):
+    async def forget(self, ctx:commands.Context):
         # 為了簡潔，這裡省略 forget 指令的程式碼，請保留你原本的即可
         memory = self.load_memory()
         user_id = str(ctx.author.id)
@@ -127,7 +127,7 @@ class Bing(commands.Cog):
         else:
             await ctx.send("我沒記住你什麼東西欸。")
 
-async def setup(bot):
+async def setup(bot:commands.Bot):
     await bot.add_cog(Bing(bot))
     # 這裡的 print 訊息可以不用改
     print("✅ GeminiChat cog has been loaded successfully!")
